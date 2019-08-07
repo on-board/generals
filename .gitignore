@@ -27,5 +27,6 @@ hs_err_pid*
 # Private properties
 local.properties
 
-# Build directory
+# Gradle
 build/
+.gradle/
