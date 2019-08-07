@@ -1,0 +1,49 @@
+version: 2.0
+
+jobs:
+  lint:
+    docker:
+      - image: circleci/openjdk:8u181-jdk
+    steps:
+      - checkout
+      - run: echo "Lint wasn't setup"
+  test:
+    docker:
+      - image: circleci/openjdk:8u181-jdk
+    steps:
+      - checkout
+      - run: ./gradlew jvmTest
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit
+  build:
+    docker:
+      - image: circleci/openjdk:8u181-jdk
+    steps:
+      - checkout
+      - run: echo "Build wasn't setup"
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint
+      - test:
+          requires:
+            - lint
+  deploy:
+    jobs:
+      - lint:
+          type: approval
+      - test:
+          requires:
+            - lint
+      - build:
+          requires:
+            - test
